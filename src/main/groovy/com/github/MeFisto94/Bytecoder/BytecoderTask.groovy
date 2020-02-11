@@ -7,6 +7,9 @@ import de.mirkosertic.bytecoder.core.BytecodeObjectTypeRef
 import de.mirkosertic.bytecoder.core.BytecodePrimitiveTypeRef
 import org.gradle.api.DefaultTask
 import org.gradle.api.plugins.ApplicationPluginConvention
+import org.gradle.api.plugins.JavaPluginConvention
+import org.gradle.api.tasks.SourceSet
+import org.gradle.api.tasks.SourceSetContainer
 import org.gradle.api.tasks.TaskAction
 import org.gradle.api.tasks.TaskExecutionException
 
@@ -40,10 +43,11 @@ class BytecoderTask extends DefaultTask {
             }
         }
 
-        CompileTarget target = new CompileTarget(project.buildscript.classLoader, extension.backend.toBackendType())
+        ClassLoader loader = createClassLoader()
+        CompileTarget target = new CompileTarget(loader, extension.backend.toBackendType())
 
         def result = target.compile(extension.toCompileOptions(logger),
-                project.buildscript.classLoader.loadClass(extension.mainClassName),
+                loader.loadClass(extension.mainClassName),
                 mainMethodName, mainSignature)
 
         for (content in result.content) {
@@ -63,5 +67,23 @@ class BytecoderTask extends DefaultTask {
         println "Compilation succeeded!"
     }
 
+    protected final ClassLoader createClassLoader() throws TaskExecutionException {
+        try {
+            List<URL> list = new ArrayList<>()
+            getProject().getConvention().getPlugin(JavaPluginConvention.class).getSourceSets().each {
+                it.compileClasspath.each {
+                    list.add(it.toURI().toURL())
+                }
+                it.output.classesDirs.each {
+                    list.add(it.toURI().toURL())
+                }
+            }
 
+            return new URLClassLoader(list.toArray(new URL[0]) as URL[], getClass().getClassLoader())
+        } catch (IllegalStateException ignored) {
+            throw new TaskExecutionException(this, new IllegalStateException("The Java Plugin is required by this Task"))
+        } catch (MalformedURLException e) {
+            throw new TaskExecutionException(this, e)
+        }
+    }
 }
