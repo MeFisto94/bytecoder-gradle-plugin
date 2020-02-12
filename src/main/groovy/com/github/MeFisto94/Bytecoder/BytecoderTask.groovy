@@ -45,9 +45,16 @@ class BytecoderTask extends DefaultTask {
 
         ClassLoader loader = createClassLoader()
         CompileTarget target = new CompileTarget(loader, extension.backend.toBackendType())
+        Class<?> mainClass
+
+        try {
+            mainClass = loader.loadClass(extension.mainClassName)
+        } catch (ClassNotFoundException cnf) {
+            throw new TaskExecutionException(this, new IllegalArgumentException("Could not find the desired MainClass!", cnf))
+        }
 
         def result = target.compile(extension.toCompileOptions(logger),
-                loader.loadClass(extension.mainClassName),
+                mainClass,
                 mainMethodName, mainSignature)
 
         for (content in result.content) {
