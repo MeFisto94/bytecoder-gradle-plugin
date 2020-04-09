@@ -3,7 +3,9 @@ package com.github.MeFisto94.Bytecoder
 import com.github.MeFisto94.Bytecoder.Enums.Allocator
 import com.github.MeFisto94.Bytecoder.Enums.Backend
 import de.mirkosertic.bytecoder.backend.CompileOptions
+import de.mirkosertic.bytecoder.backend.LLVMOptimizationLevel
 import de.mirkosertic.bytecoder.optimizer.KnownOptimizer
+import org.gradle.api.logging.Logger
 
 class BytecoderExtension {
     public static final NAME = 'bytecoder'
@@ -27,10 +29,11 @@ class BytecoderExtension {
     Allocator registerAllocator = Allocator.LINEAR
     private final String[] additionalClassesToLink
     private final String[] additionalResources
+    LLVMOptimizationLevel optimizationLevel
 
-    CompileOptions toCompileOptions(org.gradle.api.logging.Logger logger) {
+    CompileOptions toCompileOptions(Logger logger) {
         return new CompileOptions(new LoggingAdapter(logger), debugOutput, optimizer, enableExceptions, filenamePrefix,
                 wasmMinimumPageSize, wasmMaximumPageSize, minify, preferStackifier, registerAllocator.toAllocator(),
-                null, null)
+                null, null, optimizationLevel)
     }
 }
