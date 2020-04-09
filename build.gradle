@@ -30,5 +30,5 @@ repositories {
 dependencies {
     compile gradleApi()
     compile localGroovy()
-    compile group: 'de.mirkosertic.bytecoder', name: 'bytecoder-core', version: '2019-12-08'
+    compile group: 'de.mirkosertic.bytecoder', name: 'bytecoder-core', version: '2020-04-09'
 }
