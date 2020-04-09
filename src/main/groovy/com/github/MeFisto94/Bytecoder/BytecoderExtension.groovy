@@ -27,13 +27,13 @@ class BytecoderExtension {
     boolean minify = true
     boolean preferStackifier = false
     Allocator registerAllocator = Allocator.LINEAR
-    private final String[] additionalClassesToLink
-    private final String[] additionalResources
-    LLVMOptimizationLevel optimizationLevel
+    private final String[] additionalClassesToLink = new String[0]
+    private final String[] additionalResources = new String[0]
+    LLVMOptimizationLevel optimizationLevel = LLVMOptimizationLevel.defaultValue()
 
     CompileOptions toCompileOptions(Logger logger) {
         return new CompileOptions(new LoggingAdapter(logger), debugOutput, optimizer, enableExceptions, filenamePrefix,
                 wasmMinimumPageSize, wasmMaximumPageSize, minify, preferStackifier, registerAllocator.toAllocator(),
-                null, null, optimizationLevel)
+                additionalClassesToLink, additionalResources, optimizationLevel)
     }
 }
